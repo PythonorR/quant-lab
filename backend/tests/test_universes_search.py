@@ -71,6 +71,16 @@ def test_member_table_sanity_check():
     assert ml.tickers == ["AAA", "BRK.B"] and ml.names["BRK.B"] == "Berkshire"
 
 
+def test_member_table_found_without_id_and_skips_small_tables():
+    other = pd.DataFrame({"Ticker": ["AAA", "BBB"], "Company": ["A", "B"]})  # e.g. a "recent changes" table
+    main = pd.DataFrame({"Ticker": [f"T{i}" for i in range(100)], "Company": [f"Co {i}" for i in range(100)]})
+    ml = parse_member_table([pd.DataFrame({"x": [1]}), other, main], ("Ticker", "Symbol"), ("Company",),
+                            (95, 110), dt.date(2024, 1, 1))
+    assert len(ml.tickers) == 100 and ml.names["T5"] == "Co 5"
+    with pytest.raises(ProviderError, match="No table"):
+        parse_member_table([pd.DataFrame({"x": [1]})], ("Ticker",), (), (1, 5), dt.date(2024, 1, 1))
+
+
 def test_krx_listing_parse():
     rows = ["﻿,Code,ISU_CD,Name,Market"] + [f"{i},{i:06d},X,Name{i},KOSDAQ GLOBAL" for i in range(2500)]
     out = KrxCacheListingProvider._parse("\n".join(rows).encode())

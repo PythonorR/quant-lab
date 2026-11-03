@@ -130,9 +130,13 @@ def cmd_status(a) -> None:
     for m in ("KR", "US"):
         n = s.scalar(select(func.count()).select_from(Instrument).where(Instrument.market == m, Instrument.is_listed))
         print(f"{m} listed stocks: {n}")
-    for c in BY_CODE:
-        n = s.scalar(select(func.count()).select_from(UniverseMemberSet).where(UniverseMemberSet.universe_code == c))
-        print(f"{c}: {n} member list(s)")
+    for c, d in BY_CODE.items():
+        if d.kind == "all":
+            continue  # "All US / Korean stocks" come from the listings above
+        sets = s.scalar(select(func.count()).select_from(UniverseMemberSet).where(UniverseMemberSet.universe_code == c))
+        latest = s.scalar(select(UniverseMemberSet.member_count).where(UniverseMemberSet.universe_code == c)
+                          .order_by(UniverseMemberSet.as_of_date.desc(), UniverseMemberSet.snapshot_id.desc()))
+        print(f"{c}: {latest or 0} stocks ({sets} dated list(s))")
     ok = s.scalar(select(func.count()).select_from(PriceCoverage).where(PriceCoverage.status == "ok"))
     bad = s.scalar(select(func.count()).select_from(PriceCoverage).where(PriceCoverage.status != "ok"))
     rows = s.scalar(select(func.count()).select_from(PriceBar))

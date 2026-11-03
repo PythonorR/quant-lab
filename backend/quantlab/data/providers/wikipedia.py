@@ -34,18 +34,27 @@ class WikipediaConstituentProvider:
         try:
             r = httpx.get(url, headers={"User-Agent": self.user_agent}, timeout=30, follow_redirects=True)
             r.raise_for_status()
-            tables = pd.read_html(io.StringIO(r.text), attrs={"id": "constituents"})
+            # Don't depend on a table id (Wikipedia editors change them); parse_member_table picks the
+            # table by its column names and a plausible row count.
+            tables = pd.read_html(io.StringIO(r.text))
         except Exception as e:
             raise ProviderError(f"Wikipedia download failed for {universe_code}: {e}") from e
         return parse_member_table(tables, ticker_cols, name_cols, (lo, hi), as_of)
 
 
 def parse_member_table(tables, ticker_cols, name_cols, bounds, as_of) -> MemberList:
+    """Use the first table that has a ticker column and a plausible number of rows."""
+    lo, hi = bounds
+    seen = []
     for t in tables:
-        tcol = next((c for c in ticker_cols if c in t.columns), None)
+        if isinstance(t.columns, pd.MultiIndex):
+            t = t.copy()
+            t.columns = [c[-1] for c in t.columns]
+        cols = {str(c).strip(): c for c in t.columns}
+        tcol = next((cols[c] for c in ticker_cols if c in cols), None)
         if tcol is None:
             continue
-        ncol = next((c for c in name_cols if c in t.columns), None)
+        ncol = next((cols[c] for c in name_cols if c in cols), None)
         tickers, names = [], {}
         for _, row in t.iterrows():
             try:
@@ -53,11 +62,12 @@ def parse_member_table(tables, ticker_cols, name_cols, bounds, as_of) -> MemberL
             except ValueError:
                 continue
             tickers.append(tk)
-            if ncol:
+            if ncol is not None:
                 names[tk] = str(row[ncol])
         tickers = sorted(set(tickers))
-        lo, hi = bounds
-        if not lo <= len(tickers) <= hi:
-            raise ProviderError(f"Member table has {len(tickers)} rows, expected {lo}-{hi}; refusing to use it")
-        return MemberList(as_of_date=as_of, tickers=tickers, names=names)
-    raise ProviderError("No constituents table found")
+        if lo <= len(tickers) <= hi:
+            return MemberList(as_of_date=as_of, tickers=tickers, names=names)
+        seen.append(len(tickers))
+    if seen:
+        raise ProviderError(f"Ticker tables found with {seen} rows, expected {lo}-{hi}; refusing to use them")
+    raise ProviderError(f"No table with a {' or '.join(ticker_cols)} column found")
