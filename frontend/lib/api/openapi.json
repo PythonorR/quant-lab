@@ -1,0 +1,1637 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "QuantLab API",
+  "description": "QuantLab is a research and experimentation tool. It does not give investment advice and never promises returns. Past results do not predict future results.",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/api/stocks/search": {
+   "get": {
+    "tags": [
+     "stocks"
+    ],
+    "summary": "Search",
+    "operationId": "search_api_stocks_search_get",
+    "parameters": [
+     {
+      "name": "q",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 50,
+       "title": "Q"
+      }
+     },
+     {
+      "name": "market",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Market"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 50,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/InstrumentOut"
+         },
+         "title": "Response Search Api Stocks Search Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/stocks/{market}/{ticker}": {
+   "get": {
+    "tags": [
+     "stocks"
+    ],
+    "summary": "Detail",
+    "operationId": "detail_api_stocks__market___ticker__get",
+    "parameters": [
+     {
+      "name": "market",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Market"
+      }
+     },
+     {
+      "name": "ticker",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ticker"
+      }
+     },
+     {
+      "name": "start",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Start"
+      }
+     },
+     {
+      "name": "end",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "End"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/StockDetailOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/stocks/{market}/{ticker}/prices": {
+   "get": {
+    "tags": [
+     "stocks"
+    ],
+    "summary": "Prices",
+    "operationId": "prices_api_stocks__market___ticker__prices_get",
+    "parameters": [
+     {
+      "name": "market",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Market"
+      }
+     },
+     {
+      "name": "ticker",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Ticker"
+      }
+     },
+     {
+      "name": "start",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Start"
+      }
+     },
+     {
+      "name": "end",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "End"
+      }
+     },
+     {
+      "name": "snapshot_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Snapshot Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PricesOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/data/ensure": {
+   "post": {
+    "tags": [
+     "data"
+    ],
+    "summary": "Ensure",
+    "description": "Start downloading whatever price history is missing. Poll GET /api/data/jobs/{id}.",
+    "operationId": "ensure_api_data_ensure_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EnsureRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/data/jobs/{job_id}": {
+   "get": {
+    "tags": [
+     "data"
+    ],
+    "summary": "Job",
+    "operationId": "job_api_data_jobs__job_id__get",
+    "parameters": [
+     {
+      "name": "job_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Job Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/data/jobs": {
+   "get": {
+    "tags": [
+     "data"
+    ],
+    "summary": "Recent Jobs",
+    "operationId": "recent_jobs_api_data_jobs_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/JobOut"
+         },
+         "type": "array",
+         "title": "Response Recent Jobs Api Data Jobs Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/data/coverage": {
+   "post": {
+    "tags": [
+     "data"
+    ],
+    "summary": "Coverage",
+    "description": "Database-only check: is everything needed for [start, end] stored? Backtests call this first.",
+    "operationId": "coverage_api_data_coverage_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CoverageRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CoverageSummaryOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/universes": {
+   "get": {
+    "tags": [
+     "universes"
+    ],
+    "summary": "List Universes",
+    "operationId": "list_universes_api_universes_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/UniverseOut"
+         },
+         "type": "array",
+         "title": "Response List Universes Api Universes Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/universes/{code}/members": {
+   "get": {
+    "tags": [
+     "universes"
+    ],
+    "summary": "Members",
+    "operationId": "members_api_universes__code__members_get",
+    "parameters": [
+     {
+      "name": "code",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Code"
+      }
+     },
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UniverseMembersOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/watchlists": {
+   "get": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "List Watchlists",
+    "operationId": "list_watchlists_api_watchlists_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/WatchlistOut"
+         },
+         "type": "array",
+         "title": "Response List Watchlists Api Watchlists Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "Create",
+    "operationId": "create_api_watchlists_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WatchlistIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WatchlistOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/watchlists/{wid}": {
+   "get": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "Get One",
+    "operationId": "get_one_api_watchlists__wid__get",
+    "parameters": [
+     {
+      "name": "wid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Wid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WatchlistOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "Rename",
+    "operationId": "rename_api_watchlists__wid__patch",
+    "parameters": [
+     {
+      "name": "wid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Wid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WatchlistIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WatchlistOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "Delete",
+    "operationId": "delete_api_watchlists__wid__delete",
+    "parameters": [
+     {
+      "name": "wid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Wid"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/watchlists/{wid}/items": {
+   "post": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "Add Item",
+    "operationId": "add_item_api_watchlists__wid__items_post",
+    "parameters": [
+     {
+      "name": "wid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Wid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WatchlistItemIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WatchlistOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/watchlists/{wid}/items/{instrument_id}": {
+   "delete": {
+    "tags": [
+     "watchlists"
+    ],
+    "summary": "Remove Item",
+    "operationId": "remove_item_api_watchlists__wid__items__instrument_id__delete",
+    "parameters": [
+     {
+      "name": "wid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Wid"
+      }
+     },
+     {
+      "name": "instrument_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Instrument Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WatchlistOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/health": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Health",
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "BarOut": {
+    "properties": {
+     "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+     },
+     "open": {
+      "type": "number",
+      "title": "Open"
+     },
+     "high": {
+      "type": "number",
+      "title": "High"
+     },
+     "low": {
+      "type": "number",
+      "title": "Low"
+     },
+     "close": {
+      "type": "number",
+      "title": "Close"
+     },
+     "adj_open": {
+      "type": "number",
+      "title": "Adj Open"
+     },
+     "adj_high": {
+      "type": "number",
+      "title": "Adj High"
+     },
+     "adj_low": {
+      "type": "number",
+      "title": "Adj Low"
+     },
+     "adj_close": {
+      "type": "number",
+      "title": "Adj Close"
+     },
+     "volume": {
+      "type": "number",
+      "title": "Volume"
+     }
+    },
+    "type": "object",
+    "required": [
+     "date",
+     "open",
+     "high",
+     "low",
+     "close",
+     "adj_open",
+     "adj_high",
+     "adj_low",
+     "adj_close",
+     "volume"
+    ],
+    "title": "BarOut"
+   },
+   "CoverageOut": {
+    "properties": {
+     "instrument_id": {
+      "type": "integer",
+      "title": "Instrument Id"
+     },
+     "market": {
+      "type": "string",
+      "title": "Market"
+     },
+     "ticker": {
+      "type": "string",
+      "title": "Ticker"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "start": {
+      "type": "string",
+      "format": "date",
+      "title": "Start"
+     },
+     "end": {
+      "type": "string",
+      "format": "date",
+      "title": "End"
+     },
+     "first_bar": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "First Bar"
+     },
+     "last_bar": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Bar"
+     },
+     "bars": {
+      "type": "integer",
+      "title": "Bars"
+     },
+     "expected_sessions": {
+      "type": "integer",
+      "title": "Expected Sessions"
+     },
+     "missing_count": {
+      "type": "integer",
+      "title": "Missing Count"
+     },
+     "missing_dates": {
+      "items": {
+       "type": "string",
+       "format": "date"
+      },
+      "type": "array",
+      "title": "Missing Dates"
+     },
+     "provider": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider"
+     },
+     "adjustment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Adjustment"
+     },
+     "notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "instrument_id",
+     "market",
+     "ticker",
+     "status",
+     "start",
+     "end",
+     "first_bar",
+     "last_bar",
+     "bars",
+     "expected_sessions",
+     "missing_count",
+     "missing_dates",
+     "provider",
+     "adjustment",
+     "notes"
+    ],
+    "title": "CoverageOut"
+   },
+   "CoverageRequest": {
+    "properties": {
+     "instrument_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Instrument Ids"
+     },
+     "universe": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Universe"
+     },
+     "watchlist_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Watchlist Id"
+     },
+     "start": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start"
+     },
+     "end": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "End"
+     }
+    },
+    "type": "object",
+    "title": "CoverageRequest"
+   },
+   "CoverageSummaryOut": {
+    "properties": {
+     "ready": {
+      "type": "integer",
+      "title": "Ready"
+     },
+     "incomplete": {
+      "type": "integer",
+      "title": "Incomplete"
+     },
+     "needs_download": {
+      "type": "integer",
+      "title": "Needs Download"
+     },
+     "unavailable": {
+      "type": "integer",
+      "title": "Unavailable"
+     },
+     "all_downloaded": {
+      "type": "boolean",
+      "title": "All Downloaded"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/CoverageOut"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "ready",
+     "incomplete",
+     "needs_download",
+     "unavailable",
+     "all_downloaded",
+     "items"
+    ],
+    "title": "CoverageSummaryOut"
+   },
+   "EnsureRequest": {
+    "properties": {
+     "instrument_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Instrument Ids"
+     },
+     "universe": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Universe"
+     },
+     "watchlist_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Watchlist Id"
+     },
+     "start": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start"
+     }
+    },
+    "type": "object",
+    "title": "EnsureRequest"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "InstrumentOut": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "market": {
+      "type": "string",
+      "title": "Market"
+     },
+     "ticker": {
+      "type": "string",
+      "title": "Ticker"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "name_en": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name En"
+     },
+     "exchange": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exchange"
+     },
+     "currency": {
+      "type": "string",
+      "title": "Currency"
+     },
+     "is_listed": {
+      "type": "boolean",
+      "title": "Is Listed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "market",
+     "ticker",
+     "name",
+     "name_en",
+     "exchange",
+     "currency",
+     "is_listed"
+    ],
+    "title": "InstrumentOut"
+   },
+   "JobOut": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "done": {
+      "type": "integer",
+      "title": "Done"
+     },
+     "total": {
+      "type": "integer",
+      "title": "Total"
+     },
+     "failures": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "type": "array",
+      "title": "Failures"
+     },
+     "message": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Message"
+     },
+     "snapshot_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Snapshot Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "finished_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Finished At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "kind",
+     "status",
+     "done",
+     "total",
+     "failures",
+     "message",
+     "snapshot_id",
+     "created_at",
+     "finished_at"
+    ],
+    "title": "JobOut"
+   },
+   "PricesOut": {
+    "properties": {
+     "snapshot_id": {
+      "type": "integer",
+      "title": "Snapshot Id"
+     },
+     "adjustment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Adjustment"
+     },
+     "provider": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider"
+     },
+     "bars": {
+      "items": {
+       "$ref": "#/components/schemas/BarOut"
+      },
+      "type": "array",
+      "title": "Bars"
+     }
+    },
+    "type": "object",
+    "required": [
+     "snapshot_id",
+     "adjustment",
+     "provider",
+     "bars"
+    ],
+    "title": "PricesOut"
+   },
+   "StockDetailOut": {
+    "properties": {
+     "instrument": {
+      "$ref": "#/components/schemas/InstrumentOut"
+     },
+     "coverage": {
+      "$ref": "#/components/schemas/CoverageOut"
+     },
+     "downloaded_range": {
+      "anyOf": [
+       {
+        "prefixItems": [
+         {
+          "type": "string",
+          "format": "date"
+         },
+         {
+          "type": "string",
+          "format": "date"
+         }
+        ],
+        "type": "array",
+        "maxItems": 2,
+        "minItems": 2
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Downloaded Range"
+     }
+    },
+    "type": "object",
+    "required": [
+     "instrument",
+     "coverage",
+     "downloaded_range"
+    ],
+    "title": "StockDetailOut"
+   },
+   "UniverseMembersOut": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+     },
+     "as_of_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "As Of Date"
+     },
+     "point_in_time": {
+      "type": "boolean",
+      "title": "Point In Time"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     },
+     "members": {
+      "items": {
+       "$ref": "#/components/schemas/InstrumentOut"
+      },
+      "type": "array",
+      "title": "Members"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "name",
+     "date",
+     "as_of_date",
+     "point_in_time",
+     "warnings",
+     "members"
+    ],
+    "title": "UniverseMembersOut"
+   },
+   "UniverseOut": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "market": {
+      "type": "string",
+      "title": "Market"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "point_in_time": {
+      "type": "boolean",
+      "title": "Point In Time"
+     },
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "updated_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Updated At"
+     },
+     "member_count": {
+      "type": "integer",
+      "title": "Member Count"
+     },
+     "history_start": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "History Start"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "name",
+     "market",
+     "kind",
+     "point_in_time",
+     "source",
+     "updated_at",
+     "member_count",
+     "history_start",
+     "warnings"
+    ],
+    "title": "UniverseOut"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "WatchlistIn": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "WatchlistIn"
+   },
+   "WatchlistItemIn": {
+    "properties": {
+     "instrument_id": {
+      "type": "integer",
+      "title": "Instrument Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "instrument_id"
+    ],
+    "title": "WatchlistItemIn"
+   },
+   "WatchlistOut": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/InstrumentOut"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "created_at",
+     "items"
+    ],
+    "title": "WatchlistOut"
+   }
+  }
+ }
+}

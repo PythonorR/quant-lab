@@ -1,0 +1,42 @@
+[project]
+name = "quantlab"
+version = "0.1.0"
+description = "QuantLab: build, backtest and paper-trade your own investment strategies (research tool)."
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "sqlalchemy>=2.0",
+  "alembic>=1.13",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.3",
+  "pandas>=2.2",
+  "numpy>=1.26",
+  "exchange_calendars>=4.5",
+  "httpx>=0.27",
+  "lxml>=5.0",
+  "yfinance>=0.2.50",
+  "finance-datareader>=0.9.90",
+  "pykrx>=1.0.48",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+quantlab = "quantlab.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["quantlab*"]
+
+[tool.setuptools.package-data]
+"quantlab.data.seed" = ["*.csv"]
+"quantlab" = ["alembic.ini", "migrations/*.py", "migrations/versions/*.py", "migrations/*.mako"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
